@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { BotRecord } from "../store.ts";
 import { LONG_WAIT_MS, waitedWords } from "./long-waits.ts";
-import { createAsksActingPerson, createTeammatePrompts, type TeammatePromptDeps } from "./teammate-prompts.ts";
+import { coordinateResultMessage, createAsksActingPerson, createTeammatePrompts, type TeammatePromptDeps } from "./teammate-prompts.ts";
 
 vi.mock("../peer-roster.ts", () => ({ canManage: () => true }));
 
@@ -84,5 +84,17 @@ describe("what a Chief is told about its teammates' questions", () => {
     const told = questions(true, NOW - 2 * LONG_WAIT_MS);
     expect(told.split("Keep the old page?")).toHaveLength(2);
     expect(told.slice(told.indexOf("]. "))).not.toContain("Keep the old page?");
+  });
+});
+
+describe("what a coordinate_bots call that only answered for the person tells the Chief", () => {
+  it("names the sends that failed, so the Chief reports or retries them", () => {
+    const answered = coordinateResultMessage("resume", true);
+    expect(answered).toContain("tell the person what you answered");
+    expect(answered).not.toContain("failed");
+    const partly = coordinateResultMessage("resume", true, true);
+    expect(partly).toContain('outcome "failed"');
+    expect(partly).toContain("tell them or retry what failed");
+    expect(coordinateResultMessage("resume", false, true)).toBe(coordinateResultMessage("resume", false));
   });
 });

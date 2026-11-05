@@ -13936,7 +13936,7 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
         const lead = destination && sent ? roomJobs.describeRoomJobs(destination, roomThreadId!, receipts,
           { senderId: internalSender.id, returns, lanes, awaited: reply !== "none" }) : "";
         if (EXTERNAL) coordinator.endTurn(generation, { ok: sent, text: sent ? "" : refused.join("; ") });
-        const message = coordinateResultMessage(reply, answeredOnly);
+        const message = coordinateResultMessage(reply, answeredOnly, receipts.some((receipt) => receipt.outcome === "failed"));
         return { status: sent ? 200 : 409, body: { receipts, ...(sent ? { message: lead ? `${lead} ${message}` : message } : { error: refused.join("; ") }),
           ...(EXTERNAL && sent ? { rootId: generation } : {}) } };
       };

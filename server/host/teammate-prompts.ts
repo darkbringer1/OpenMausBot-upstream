@@ -29,9 +29,11 @@ export interface TeammatePromptDeps {
 }
 
 /** What a coordinate_bots call tells the bot to do next. */
-export function coordinateResultMessage(reply: "none" | "poll" | "resume", answeredOnly: boolean): string {
+export function coordinateResultMessage(reply: "none" | "poll" | "resume", answeredOnly: boolean, failed = false): string {
   if (reply === "none") return "Sent one way. Nothing comes back and nothing resumes you; continue your turn.";
-  if (answeredOnly) return "Answered for the person. Nothing from this call comes back or resumes you; continue your turn and tell the person what you answered.";
+  if (answeredOnly) return failed
+    ? "Answered for the person where a send went through; the receipts with outcome \"failed\" did not. Nothing from this call comes back or resumes you; continue your turn, tell the person what you answered, and tell them or retry what failed."
+    : "Answered for the person. Nothing from this call comes back or resumes you; continue your turn and tell the person what you answered.";
   return reply === "poll"
     ? "Handed to the coordinator. Read each result with assignment_status (id: a receipt's requestId, or rootId for the whole call), long-polling with wait_ms."
     : "End your turn after sending all work. These actual teammates will reply and resume you automatically. Do not poll or wait.";
